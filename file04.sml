@@ -1,0 +1,10 @@
+val instream = TextIO.openIn "code03.sml";
+val data = TextIO.inputAll instream;
+TextIO.closeIn instream;
+val newdata = String.substring (data, 0, size data);
+val outstream = TextIO.openOut "code03.sml";
+TextIO.output (outstream, "(");
+TextIO.output (outstream, "*");
+TextIO.output (outstream, ")");
+TextIO.output (outstream, newdata);
+TextIO.closeOut outstream;

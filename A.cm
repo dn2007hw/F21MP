@@ -1,0 +1,13 @@
+(* A.cm *)
+Library
+  structure A
+is
+  a.sml
+
+(*  
+  $smlnj/compiler/compiler.cm
+*)
+  $smlnj/compiler.cm
+
+
+(* solution   ($smlnj/compiler.cm) and Control.Print.out *)
