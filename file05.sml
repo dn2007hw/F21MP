@@ -55,29 +55,7 @@ in
   then 
     updateFile fname newdata
   else
-    print "hola false \n"
+    print ""
 end
 
 
-
-
-
-(*
-
-fun adddata () = 
-  let
-    val instream = TextIO.openIn "code03.sml";
-    val data = TextIO.inputAll instream;
-    TextIO.closeIn instream;
-    val newdata = String.substring (data, 0, size data);
-    val outstream = TextIO.openOut "code03.sml";
-
-  in
-    TextIO.output (outstream, "(*)");
-    TextIO.output (outstream, newdata);
-    TextIO.closeOut outstream;
-  end
-
-
-
-*)
