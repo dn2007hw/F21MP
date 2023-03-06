@@ -25,37 +25,39 @@ fun isScript fname: bool =
     withsharpbang
   end
 
-fun readFile fname: vector = 
+fun readFile fname: TextIO.vector = 
 let
   val instream = TextIO.openIn fname
-  val data = TextIO.inputAll instream
+  val filecontent = TextIO.inputAll instream
 in  
   TextIO.closeIn instream;
-  data
+  filecontent
 end
 
-fun updateFile (fname) (data) = 
+fun updateFile (fname) (filecontent) = 
 let 
   val outstream = TextIO.openOut fname
 in
   TextIO.output (outstream, "(");
   TextIO.output (outstream, "*");
   TextIO.output (outstream, ")");
-  TextIO.output (outstream, data); 
+  TextIO.output (outstream, filecontent); 
   TextIO.closeOut outstream
 end
 
 fun processFile fname = 
 let
   val isscript = isScript fname
-  val data = readFile fname
-  val newdata = String.substring (data, 0, size data)
+  val oldcontent = readFile fname
+  val newcontent = String.substring (oldcontent, 0, size oldcontent)
 in
+  (* Control.setSuccML true; *)
   if (isscript) = true  
   then 
-    updateFile fname newdata
+    (updateFile fname newcontent;
+    use fname)
   else
-    print ""
+    use fname
 end
 
 

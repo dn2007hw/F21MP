@@ -704,11 +704,63 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 		      ]
 		  (* end case *))
 		  (* DAYA change starts here *)
-		    fun processFileScript (file) = (
-				Say.say ["!* DAYA processFileSCRIPT starts\n"];
-				useFile file
-		  (* end case *))
-		  (* DAYA change ends here *)
+			fun checkSharpbang (stream : TextIO.instream): bool = let
+    			val c = TextIO.input1 stream
+  				in
+   					Say.say ["!* DAYA entered checkSharpbang \n"];
+					case c of
+      				SOME #"\n" => checkSharpbang stream
+    				| SOME #"#" => (
+        				case TextIO.lookahead stream of
+          				SOME #"!" => true
+        				| SOME c => checkSharpbang stream
+        				| NONE => checkSharpbang stream
+        				)
+    				| SOME c => checkSharpbang stream
+    				| NONE => false
+  				end
+
+			fun isScript fname: bool = let
+    			val stream = TextIO.openIn fname
+    			val withsharpbang = checkSharpbang stream
+  				in 
+    				Say.say ["!* DAYA entered isScript \n"];
+					TextIO.closeIn stream;
+    				withsharpbang
+  				end
+
+			fun readFile fname: TextIO.vector = let
+				val instream = TextIO.openIn fname
+  				val filecontent = TextIO.inputAll instream
+				in  
+					Say.say ["!* DAYA entered readFile \n"];
+					TextIO.closeIn instream;
+  					filecontent
+				end
+
+			fun updateFile (fname) (filecontent) = let
+				val outstream = TextIO.openOut fname
+				in
+					Say.say ["!* DAYA entered updateFile \n"];
+					TextIO.output (outstream, "(");
+					TextIO.output (outstream, "*");
+					TextIO.output (outstream, ")");
+					TextIO.output (outstream, filecontent); 
+					TextIO.closeOut outstream
+				end
+
+			fun processFileScript (file) = let
+				val isscript = isScript file
+				val oldcontent = readFile file
+				val newcontent = String.substring (oldcontent, 0, size oldcontent)
+				in
+    				Say.say ["!* DAYA processFileScript : ", file, "\n"];
+					(* Control.setSuccML true; *)
+  					if (isscript) = true  
+  					then	(updateFile file newcontent; useFile file)
+					else	useFile file
+				end
+			(* DAYA change ends here *)
 	    fun inc n = n + 1
 	    fun show_controls (getarg, getval, padval) level = let
 		fun walk indent (ControlRegistry.RTree rt) = let
