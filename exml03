@@ -1,4 +1,4 @@
-#!/usr/bin/env -Ssml --script
+#!/usr/bin/env -Ssml --scrip1
 ;(*-*-SML-*-*)
 (* silenceCompiler (); *)
 val x = "HelloX\n";

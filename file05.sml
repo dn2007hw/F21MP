@@ -45,6 +45,13 @@ in
   TextIO.closeOut outstream
 end
 
+fun useSreamFile (fname) = 
+let 
+  val instream = TextIO.openIn fname
+in
+  Backend.Interact.useStream instream
+end
+
 fun processFile fname = 
 let
   val isscript = isScript fname
@@ -54,10 +61,14 @@ in
   (* Control.setSuccML true; *)
   if (isscript) = true  
   then 
+  (*
     (updateFile fname newcontent;
     use fname)
+    *)
+    (updateFile fname newcontent;
+    useSreamFile fname)
   else
-    use fname
+    print "!* Script file doesn't start with #!. \n"
 end
 
 
