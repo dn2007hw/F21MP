@@ -90,7 +90,7 @@ functor Interact(EvalLoop : EVALLOOP) : INTERACT =
     end (* local *)
 
     fun useStream stream = EvalLoop.evalStream ("<instream>", stream)
-    fun useScriptStream (fname, stream) = EvalLoop.evalStream (fname, stream)
+    fun useScriptFile (fname, stream) = EvalLoop.evalStream (fname, stream)  (* Addded by DAYA *)
 
     fun evalStream (stream, baseEnv) = let
 	  val r = ref Environment.emptyEnv

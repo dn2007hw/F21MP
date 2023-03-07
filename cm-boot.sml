@@ -690,12 +690,12 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 	  end
       end
   in
-    fun init (bootdir, de, er, useStream, useFile, errorwrap, icm) = let
+    fun init (bootdir, de, er, useStream, useScriptFile, useFile, errorwrap, icm) = let
 	fun procCmdLine () = let
 	    val autoload' = errorwrap (ignore o autoload mkStdSrcPath)
 	    val make' = errorwrap (ignore o makeStd)
             fun processFile (file, mk, ext) = (
-				Say.say ["!* DAYA BAU processFile", file, " :: \n"]; (* inserted by DAYA*)
+				Say.say ["!* DAYA BAU processFile ", file, "\n"]; (* inserted by DAYA*)
 				case ext
 		  of ("sml" | "sig" | "fun") => useFile file
 		   | "cm" => mk file
@@ -748,24 +748,27 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 					TextIO.output (outstream, filecontent); 
 					TextIO.closeOut outstream
 				end
-			(*
+			
 			fun useStreamFile (fname) = 
 				let 
   					val instream = TextIO.openIn fname
 				in
-  					(* useScriptStream (fname, instream) *)
-					Backend.Interact.useStream (fname)
+  					Say.say ["!* DAYA useScriptFile : ", fname, "\n"];
+					(* Backend.Interact.useStream (fname) *)
+					(* useFile fname *)
+    				(* useStream instream *)
+					useScriptFile (fname, instream)
 				end
-			*)
-			fun processFileScript (file) = let
-				val isscript = isScript file
-				val oldcontent = readFile file
+			
+			fun processFileScript (fname) = let
+				val isscript = isScript fname
+				val oldcontent = readFile fname
 				val newcontent = String.substring (oldcontent, 0, size oldcontent)
 				in
-    				Say.say ["!* DAYA processFileScript : ", file, "\n"];
+    				Say.say ["!* DAYA processFileScript : ", fname, "\n"];
 					(* Control.setSuccML true; *)
   					if (isscript) = true  
-  					then (updateFile file newcontent; useFile file)
+  					then (updateFile fname newcontent; useStreamFile fname)
 					else Say.say ["!* Script file doesn't start with #!. \n"]
 				end
 
@@ -957,7 +960,6 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 	      | args ("-E" :: _ :: _, mk) = (show_envvars NONE; nextarg mk)
 		  (* DAYA change starts here Mar 1*)
 		  | args ("--script" :: _, _) = ( Say.say ["!* DAYA recognised --script. \n"];  nextargScript ())
-		  | args ("--scrip1" :: _, _) = ( Say.say ["!* DAYA recognised --scrip1. \n"];  nextargScript ())
 		  (* DAYA change ends here Mar 1*)
 	      | args ("@CMbuild" :: rest, _) = mlbuild rest
 	      | args (["@CMredump", heapfile], _) = redump_heap heapfile

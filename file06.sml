@@ -34,14 +34,25 @@ in
   filecontent
 end
 
-fun updateFile (fname) (filecontent) = 
+fun readFileNL fname: int option = 
+let
+  val instream = TextIO.openIn fname
+  val firstline = TextIO.inputLine instream
+  val flsize = Option.map size firstline
+in  
+  TextIO.closeIn instream;
+  flsize
+end
+
+fun updateFile (fname) (filecontent) (flsize) = 
 let 
   val outstream = TextIO.openOut fname
+  val localsize = size filecontent
 in
-  TextIO.output (outstream, "(");
-  TextIO.output (outstream, "*");
-  TextIO.output (outstream, ")");
-  TextIO.output (outstream, filecontent); 
+  TextIO.output (outstream, "(*");
+  TextIO.output (outstream, String.substring (filecontent, 0, flsize - 1));
+  TextIO.output (outstream, "*)\n");
+  TextIO.output (outstream, String.substring (filecontent, flsize, size filecontent - flsize));
   TextIO.closeOut outstream
 end
 
@@ -49,7 +60,6 @@ fun useSreamFile (fname) =
 let 
   val instream = TextIO.openIn fname
 in
-  (*Backend.Interact.useStream instream *)
   Backend.Interact.useScriptFile (fname, instream)
 end
 
@@ -57,17 +67,15 @@ fun processFile fname =
 let
   val isscript = isScript fname
   val oldcontent = readFile fname
+  val flsize = readFileNL fname
   val newcontent = String.substring (oldcontent, 0, size oldcontent)
 in
-  (* Control.setSuccML true; *)
   if (isscript) = true  
   then 
-  (*
-    (updateFile fname newcontent;
-    use fname)
-    *)
-    (updateFile fname newcontent;
-    useSreamFile fname)
+    (
+      updateFile fname oldcontent (Option.valOf flsize);
+      useSreamFile fname
+    )
   else
     print "!* Script file doesn't start with #!. \n"
 end
