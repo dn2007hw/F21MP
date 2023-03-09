@@ -704,28 +704,28 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 		      ]
 		  (* end case *))
 		  (* DAYA change starts here *)
-			fun checkSharpbang (stream : TextIO.instream): bool = let
-    			val c = TextIO.input1 stream
+			fun checkSharpbang (instream : TextIO.instream): bool = let
+    			val c = TextIO.input1 instream
   				in
    					Say.say ["!* DAYA entered checkSharpbang \n"];
 					case c of
-      				SOME #"\n" => checkSharpbang stream
+      				SOME #"\n" => checkSharpbang instream
     				| SOME #"#" => (
-        				case TextIO.lookahead stream of
+        				case TextIO.lookahead instream of
           				SOME #"!" => true
-        				| SOME c => checkSharpbang stream
-        				| NONE => checkSharpbang stream
+        				| SOME c => checkSharpbang instream
+        				| NONE => checkSharpbang instream
         				)
-    				| SOME c => checkSharpbang stream
+    				| SOME c => checkSharpbang instream
     				| NONE => false
   				end
 
 			fun isScript fname: bool = let
-    			val stream = TextIO.openIn fname
-    			val withsharpbang = checkSharpbang stream
+    			val instream = TextIO.openIn fname
+    			val withsharpbang = checkSharpbang instream
   				in 
     				Say.say ["!* DAYA entered isScript \n"];
-					TextIO.closeIn stream;
+					TextIO.closeIn instream;
     				withsharpbang
   				end
 
@@ -738,23 +738,31 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
   					filecontent
 				end
 
-			fun updateFile (fname) (filecontent) = let
+			fun readFirstLine fname: int option = let
+				val instream = TextIO.openIn fname
+				val firstline = TextIO.inputLine instream
+				val flsize = Option.map size firstline
+				in  
+  					Say.say ["!* DAYA entered readFirstLine \n"];
+					TextIO.closeIn instream;
+  					flsize
+				end
+
+			fun updateFile (fname) (filecontent) (flsize) = let
 				val outstream = TextIO.openOut fname
 				in
 					Say.say ["!* DAYA entered updateFile \n"];
-					TextIO.output (outstream, "(");
-					TextIO.output (outstream, "*");
-					TextIO.output (outstream, ")");
-					TextIO.output (outstream, filecontent); 
+					TextIO.output (outstream, "(* ");
+					TextIO.output (outstream, String.substring (filecontent, 0, flsize - 1));
+					TextIO.output (outstream, " *)\n");
+					TextIO.output (outstream, String.substring (filecontent, flsize, size filecontent - flsize));
 					TextIO.closeOut outstream
 				end
 			
-			fun useStreamFile (fname) = 
-				let 
+			fun useStreamFile (fname) = let
   					val instream = TextIO.openIn fname
 				in
   					Say.say ["!* DAYA useScriptFile : ", fname, "\n"];
-					(* Backend.Interact.useStream (fname) *)
 					(* useFile fname *)
     				(* useStream instream *)
 					useScriptFile (fname, instream)
@@ -762,14 +770,15 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 			
 			fun processFileScript (fname) = let
 				val isscript = isScript fname
-				val oldcontent = readFile fname
-				val newcontent = String.substring (oldcontent, 0, size oldcontent)
+				val filecontent = readFile fname
+				val flsize = readFirstLine fname (* required only for multiline comment option *)
 				in
     				Say.say ["!* DAYA processFileScript : ", fname, "\n"];
-					(* Control.setSuccML true; *)
-  					if (isscript) = true  
-  					then (updateFile fname newcontent; useStreamFile fname)
-					else Say.say ["!* Script file doesn't start with #!. \n"]
+					if (isscript) = true  
+  					then
+						(updateFile fname filecontent (Option.valOf flsize); useStreamFile fname)
+					else 
+						Say.say ["!* Script file doesn't start with #!. \n"]
 				end
 
 			fun nextargScript () = let
@@ -779,6 +788,41 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 					SMLofNJ.shiftArgs ();
 					processFileScript (hd file)
     			end
+
+			(*  Sections required for single line comment  - remove If not required  *)
+
+			fun updateFileSingle (fname) (filecontent) = let
+				val outstream = TextIO.openOut fname
+				in
+					Say.say ["!* DAYA entered updateFileSingle \n"];
+					TextIO.output (outstream, " (");
+					TextIO.output (outstream, "*");
+					TextIO.output (outstream, ") ");
+					TextIO.output (outstream, filecontent); 
+					TextIO.closeOut outstream
+				end
+
+			fun processFileSingle (fname) = let
+				val isscript = isScript fname
+				val filecontent = readFile fname
+				in
+    				Say.say ["!* DAYA processFileSingle : ", fname, "\n"];
+					if (isscript) = true  
+  					then
+						(updateFileSingle fname filecontent; useStreamFile fname)
+					else 
+						Say.say ["!* Script file doesn't start with #!. \n"]
+				end		
+
+			fun nextargScriptS () = let
+				val file = SMLofNJ.getArgs ()
+				in 
+					Say.say ["!* DAYA nextargScriptS \n"];
+					SMLofNJ.shiftArgs ();
+					Control.setSuccML true;
+					processFileSingle (hd file)
+    			end
+			(* end of single line comment - remove If not required *)	
 
 			(* DAYA change ends here *)
 	    fun inc n = n + 1
@@ -960,6 +1004,7 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 	      | args ("-E" :: _ :: _, mk) = (show_envvars NONE; nextarg mk)
 		  (* DAYA change starts here Mar 1*)
 		  | args ("--script" :: _, _) = ( Say.say ["!* DAYA recognised --script. \n"];  nextargScript ())
+		  | args ("--smlnjs" :: _, _) = ( Say.say ["!* DAYA recognised --smlnjs. \n"];  nextargScriptS ())
 		  (* DAYA change ends here Mar 1*)
 	      | args ("@CMbuild" :: rest, _) = mlbuild rest
 	      | args (["@CMredump", heapfile], _) = redump_heap heapfile
