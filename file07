@@ -1,4 +1,4 @@
-(* file05.sml *)
+#!/usr/bin/env -Ssml --script
 
 fun eatuntilnewline (fname) (instream : TextIO.instream): bool =
   let
