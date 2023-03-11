@@ -4,13 +4,13 @@ fun checkSharpbang (stream : TextIO.instream): bool =
   let
     val c = TextIO.input1 stream
   in
+   print "checkSharpbang \n";
    case c of
-      SOME #"\n" => checkSharpbang stream
-    | SOME #"#" => (
+      SOME #"#" => (
         case TextIO.lookahead stream of
           SOME #"!" => true
         | SOME c => checkSharpbang stream
-        | NONE => checkSharpbang stream
+        | NONE => false
         )
     | SOME c => checkSharpbang stream
     | NONE => false
@@ -21,6 +21,7 @@ fun isScript fname: bool =
     val stream = TextIO.openIn fname
     val withsharpbang = checkSharpbang stream
   in 
+    print "isScript \n";
     TextIO.closeIn stream;
     withsharpbang
   end
@@ -30,16 +31,18 @@ let
   val instream = TextIO.openIn fname
   val filecontent = TextIO.inputAll instream
 in  
+  print "readFile \n";
   TextIO.closeIn instream;
   filecontent
 end
 
-fun readFileNL fname: int option = 
+fun readFirstLine fname: int option = 
 let
   val instream = TextIO.openIn fname
   val firstline = TextIO.inputLine instream
   val flsize = Option.map size firstline
 in  
+  print "readFirstLine \n";
   TextIO.closeIn instream;
   flsize
 end
@@ -47,11 +50,11 @@ end
 fun updateFile (fname) (filecontent) (flsize) = 
 let 
   val outstream = TextIO.openOut fname
-  val localsize = size filecontent
 in
-  TextIO.output (outstream, "(*");
+  print "updateFile \n";
+  TextIO.output (outstream, "(* ");
   TextIO.output (outstream, String.substring (filecontent, 0, flsize - 1));
-  TextIO.output (outstream, "*)\n");
+  TextIO.output (outstream, " *)\n");
   TextIO.output (outstream, String.substring (filecontent, flsize, size filecontent - flsize));
   TextIO.closeOut outstream
 end
@@ -60,16 +63,18 @@ fun useSreamFile (fname) =
 let 
   val instream = TextIO.openIn fname
 in
-  Backend.Interact.useScriptFile (fname, instream)
+  print "useStreamFile \n";
+  Backend.Interact.useScriptFile (fname, instream);
+  OS.Process.exit OS.Process.success
 end
 
 fun processFile fname = 
 let
   val isscript = isScript fname
   val oldcontent = readFile fname
-  val flsize = readFileNL fname
-  val newcontent = String.substring (oldcontent, 0, size oldcontent)
+  val flsize = readFirstLine fname
 in
+  print "Begin script.\n";
   if (isscript) = true  
   then 
     (
@@ -77,7 +82,8 @@ in
       useSreamFile fname
     )
   else
-    print "!* Script file doesn't start with #!. \n"
+      print "!* Script file doesn't start with #!. \n";
+  print "End of script processing.\n"
 end
 
 

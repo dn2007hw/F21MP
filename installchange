@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# script to install script changes
+#
+set -vx
+cp /Users/ndaya/Documents/MSC/samples/changes/cm-boot.sml /usr/local/smlnj/base/cm/main
+cp /Users/ndaya/Documents/MSC/samples/changes/interact.sml /usr/local/smlnj/base/compiler/TopLevel/interact
+cp /Users/ndaya/Documents/MSC/samples/changes/interact.sig /usr/local/smlnj/base/compiler/TopLevel/interact
+cp /Users/ndaya/Documents/MSC/samples/changes/boot-env-fn.sml /usr/local/smlnj/base/system/smlnj/internal
+cd /usr/local/smlnj/base/system
+./cmb-make -32 ../../bin/sml
+./makeml -32
+./installml -32 -clean
+cd ../..
+sudo config/install.sh -default 32
+cd /Users/ndaya/Documents/MSC/samples

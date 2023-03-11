@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# script to install script changes
+#
+set -vx
+cd /usr/local/smlnj/base/system
+./makeml -32
+./installml -32 -clean
+cd ../..
+sudo config/install.sh -default 32
+cd /Users/ndaya/Documents/MSC/samples

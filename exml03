@@ -1,8 +1,8 @@
-#!/usr/bin/env -Ssml --scrip1
+(* #!/usr/bin/env -Ssml --script *)
 ;(*-*-SML-*-*)
-(* silenceCompiler (); *)
-val x = "HelloX\n";
-(* unsilenceCompiler (); *)
-val y = "HelloY\n";
+val x* = "HelloX\n";
+val y* = "HelloY\n";
+val () = print "BEGIN\n";
 val () = print x;
+val () = print y;
 val () = print "DONE\n";

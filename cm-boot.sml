@@ -695,7 +695,7 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 	    val autoload' = errorwrap (ignore o autoload mkStdSrcPath)
 	    val make' = errorwrap (ignore o makeStd)
             fun processFile (file, mk, ext) = (
-				Say.say ["!* DAYA BAU processFile ", file, "\n"]; (* inserted by DAYA*)
+				Say.say ["!* DAYA BAU processFile: ", file, "\n"]; (* inserted by DAYA*)
 				case ext
 		  of ("sml" | "sig" | "fun") => useFile file
 		   | "cm" => mk file
@@ -762,7 +762,7 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 			fun useStreamFile (fname) = let
   					val instream = TextIO.openIn fname
 				in
-  					Say.say ["!* DAYA useScriptFile : ", fname, "\n"];
+  					Say.say ["!* DAYA useScriptFile: ", fname, "\n"];
 					(* useFile fname *)
     				(* useStream instream *)
 					useScriptFile (fname, instream)
@@ -773,21 +773,13 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 				val filecontent = readFile fname
 				val flsize = readFirstLine fname (* required only for multiline comment option *)
 				in
-    				Say.say ["!* DAYA processFileScript : ", fname, "\n"];
+    				Say.say ["!* DAYA processFileScript: ", fname, "\n"];
 					if (isscript) = true  
   					then
 						(updateFile fname filecontent (Option.valOf flsize); useStreamFile fname)
 					else 
 						Say.say ["!* Script file doesn't start with #!. \n"]
 				end
-
-			fun nextargScript () = let
-				val file = SMLofNJ.getArgs ()
-				in 
-					Say.say ["!* DAYA nextargScript \n"];
-					SMLofNJ.shiftArgs ();
-					processFileScript (hd file)
-    			end
 
 			(*  Sections required for single line comment  - remove If not required  *)
 
@@ -806,22 +798,18 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 				val isscript = isScript fname
 				val filecontent = readFile fname
 				in
-    				Say.say ["!* DAYA processFileSingle : ", fname, "\n"];
+    				Say.say ["!* DAYA processFileSingle: ", fname, "\n"];
 					if (isscript) = true  
   					then
-						(updateFileSingle fname filecontent; useStreamFile fname)
+						( updateFileSingle fname filecontent; 
+						Say.say ["!* before setsuccml. \n"];
+						Control.setSuccML true;
+						Say.say ["!* after setsuccml. \n"];
+						useStreamFile fname )
 					else 
 						Say.say ["!* Script file doesn't start with #!. \n"]
 				end		
 
-			fun nextargScriptS () = let
-				val file = SMLofNJ.getArgs ()
-				in 
-					Say.say ["!* DAYA nextargScriptS \n"];
-					SMLofNJ.shiftArgs ();
-					Control.setSuccML true;
-					processFileSingle (hd file)
-    			end
 			(* end of single line comment - remove If not required *)	
 
 			(* DAYA change ends here *)
@@ -1003,8 +991,8 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 	      | args (["-E"], _) = (show_envvars NONE; quit ())
 	      | args ("-E" :: _ :: _, mk) = (show_envvars NONE; nextarg mk)
 		  (* DAYA change starts here Mar 1*)
-		  | args ("--script" :: _, _) = ( Say.say ["!* DAYA recognised --script. \n"];  nextargScript ())
-		  | args ("--smlnjs" :: _, _) = ( Say.say ["!* DAYA recognised --smlnjs. \n"];  nextargScriptS ())
+		  | args ("--script" :: _, _) = ( Say.say ["!* DAYA recognised --script. \n"]; nextargscript ())
+		  | args ("--single" :: _, _) = ( Say.say ["!* DAYA recognised --single. \n"]; nextargscriptSF ())
 		  (* DAYA change ends here Mar 1*)
 	      | args ("@CMbuild" :: rest, _) = mlbuild rest
 	      | args (["@CMredump", heapfile], _) = redump_heap heapfile
@@ -1018,6 +1006,17 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 		let val l = SMLofNJ.getArgs ()
 		in SMLofNJ.shiftArgs (); args (l, mk)
 		end
+
+		and nextargscript () =
+		let val l = SMLofNJ.getArgs ()
+		in SMLofNJ.shiftArgs (); processFileScript (hd l); quit ()
+		end
+
+		and nextargscriptSF () =
+		let val l = SMLofNJ.getArgs ()
+		in SMLofNJ.shiftArgs (); processFileSingle (hd l); quit ()
+		end
+
 	in
 	    case SMLofNJ.getArgs () of
 		["@CMslave"] => (#set StdConfig.verbose false; slave ())

@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# script to install script changes
+#
+set -vx
+rm -rf /usr/local/smlnj
+mkdir /usr/local/smlnj
+cp -R /Users/ndaya/Downloads/993-32/config /usr/local/smlnj
+cd /usr/local/smlnj
+./config/install.sh -default 32
+sml
