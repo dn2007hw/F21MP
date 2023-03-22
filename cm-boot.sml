@@ -690,7 +690,7 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 	  end
       end
   in
-    fun init (bootdir, de, er, useStream, useScriptFile, useFile, errorwrap, icm) = let
+    fun init (bootdir, de, er, useStream, useScriptFile, silenceCompiler, useFile, errorwrap, icm) = let
 	fun procCmdLine () = let
 	    val autoload' = errorwrap (ignore o autoload mkStdSrcPath)
 	    val make' = errorwrap (ignore o makeStd)
@@ -720,10 +720,10 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
       					SOME #"#" => (
         					case TextIO.lookahead instream of
           						SOME #"!" => eatuntilnewline instream
-        						| SOME c => checkSharpbang instream
+        						| SOME c => false
         						| NONE => false
         						)
-    					| SOME c => checkSharpbang instream
+    					| SOME c => false
     					| NONE => false
   				end
 
@@ -733,7 +733,8 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 				in
 				  	if (isscript) = false  
   					then	(print "!* Script file doesn't start with #!. \n")
-  					else	( useScriptFile (fname, stream) )
+  					(* else	( silenceCompiler () ; useScriptFile (fname, stream) ) *) 
+					else	( useScriptFile (fname, stream) )
 				end
 			(* DAYA change ends here *)
 
@@ -914,7 +915,7 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 	      | args ("-S" :: _ :: _, mk) = (showcur NONE; nextarg mk)
 	      | args (["-E"], _) = (show_envvars NONE; quit ())
 	      | args ("-E" :: _ :: _, mk) = (show_envvars NONE; nextarg mk)
-		  | args ("--script" :: _, _) = ( nextargscript ())  (* line added by DAYA *)
+		  | args ("--script" :: _, _) = (nextargscript ())  (* line added by DAYA *)
 	      | args ("@CMbuild" :: rest, _) = mlbuild rest
 	      | args (["@CMredump", heapfile], _) = redump_heap heapfile
 	      | args (f :: rest, mk) =

@@ -91,6 +91,7 @@ functor Interact(EvalLoop : EVALLOOP) : INTERACT =
 
     fun useStream stream = EvalLoop.evalStream ("<instream>", stream)
     fun useScriptFile (fname, stream) = EvalLoop.evalStream (fname, stream)  (* Addded by DAYA *)
+    fun tempdisplay () = (print "!* tempdisplay. \n")
 
     fun evalStream (stream, baseEnv) = let
 	  val r = ref Environment.emptyEnv
