@@ -16,7 +16,9 @@ signature MUTECOMPILER =
     val lowerPrintingLimitsToMin : unit -> unit
     val restoreControlPrintOut : unit -> unit
     val restorePrintingLimits : unit -> unit   
+    val outputFlush : TextIO.outstream -> TextIO.vector -> unit
     val silenceCompiler : unit -> unit
     val unsilenceCompiler : unit -> unit
+    val printStashedCompilerOutput : int -> unit
 
   end  (* signature MUTECOMPILER *)

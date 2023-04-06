@@ -4,7 +4,8 @@
  * All rights reserved.
  *)
 
-functor Mutecompiler() : MUTECOMPILER =
+(* functor Mutecompiler() : MUTECOMPILER =  *)
+structure Mutecompiler : MUTECOMPILER =
   struct
 
   (* compile and execute the contents of a file. *)
@@ -12,8 +13,8 @@ functor Mutecompiler() : MUTECOMPILER =
     val printingLimitRefs =
           let open Control.Print
           in [
-              printDepth, (* default: 5 *)
-              printLength, (* default: 12 *)
+              printDepth, (* default: 5 , max 10 *)
+              printLength, (* default: 12 , max 16 *)
               stringDepth, (* default: 70 *)
               intinfDepth (* default: 70 *)
               ]
@@ -83,7 +84,12 @@ functor Mutecompiler() : MUTECOMPILER =
                 NONE => ()
               | SOME settings => (savedPrintingLimitSettings := NONE;
                                   installPrintingLimitSettings settings); (* 221*)
-    
+    (* 311 *)
+    fun outputFlush f s = (TextIO.output (f, s); TextIO.flushOut f);
+
+    (* 31 *)
+    val printStdErr = outputFlush TextIO.stdErr;
+
     (* 1 *)
     fun silenceCompiler () =
            (saveControlPrintOut ();  (* 11 *)
@@ -94,6 +100,31 @@ functor Mutecompiler() : MUTECOMPILER =
     (* 2 *)    
     fun unsilenceCompiler () = (restoreControlPrintOut (); (* 21 *)
                                 restorePrintingLimits ()); (* 22 *)
+    
+    (* 3 *)
+    fun printStashedCompilerOutput lineLimit
+      = let val completeLines = length (! compilerOutputPreviousFullLines)
+            val partialLine = 0 < length (! compilerOutputCurrentLine)
+            val partialLines = if partialLine then 1 else 0
+            val stashedOutput = 0 < completeLines orelse partialLine
+        in if not stashedOutput
+           then ()
+           else (printStdErr ("___________________________________________________________________\n");
+                 let val linesShown
+                       = ((if partialLine then [String.concat (rev (! compilerOutputCurrentLine))] else [])
+                          @ List.take (! compilerOutputPreviousFullLines,
+                                       Int.min (completeLines,
+                                                lineLimit - partialLines)))
+                     val numLinesShown = length linesShown
+                     val last = completeLines + partialLines
+                     val first = last - numLinesShown + 1
+                 in printStdErr (String.concat ["The last " ^ Int.toString lineLimit ^ " lines " ^ Int.toString first ^ " through " ^ Int.toString last ^ " of suppressed compiler messages are:\n"]);
+                    foldr (fn (line, ()) => printStdErr (line ^ "\n"))
+                          ()
+                          linesShown
+                 end;
+                 printStdErr ("___________________________________________________________________\n"))
+        end;
   end
 
   end (* functor Mutecompiler *)

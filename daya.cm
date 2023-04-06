@@ -1,0 +1,17 @@
+(* daya.cm
+ *
+ * COPYRIGHT (c) 2018 The Fellowship of SML/NJ (http://www.smlnj.org)
+ * All rights reserved.
+ *)
+
+Library
+
+  structure Daya
+
+is
+
+   $smlnj/basis/basis.cm
+   $smlnj/smlnj-lib/smlnj-lib.cm
+
+  daya.sig
+  daya.sml

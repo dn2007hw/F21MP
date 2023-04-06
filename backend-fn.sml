@@ -90,7 +90,7 @@ functor BackendFn (
 				  Interact.evalStream (TextIO.openString s, e))
 		   val pervasive = EnvRef.pervasive)
     structure Machine = M.Machine
-	structure Mutecompiler = Mutecompiler ()	
     val architecture = M.architecture
     val abi_variant = M.abi_variant
+	structure Mutecompiler = Mutecompiler
 end

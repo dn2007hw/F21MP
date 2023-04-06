@@ -151,6 +151,9 @@ Group
 	signature TARGET
 	structure Target
 
+	(* signature NDAYA
+	structure NDaya *)
+
 is
 
 TopLevel/environ/environ.sig
@@ -165,6 +168,7 @@ TopLevel/interact/interact.sig
 TopLevel/interact/interact.sml
 TopLevel/interact/mutecompiler.sig
 TopLevel/interact/mutecompiler.sml
+
 
 TopLevel/backend/backend.sig
 TopLevel/backend/backend-fn.sml
@@ -344,6 +348,8 @@ CodeGen/main/spill-table.sml
 (* Miscellaneous utilities. *)
 Library/const-arith/sources.cm
 
+Library/ndaya/ndaya.cm
+
 (* Libraries that are part of the visible compiler framework. *)
 $smlnj/viscomp/basics.cm
 $smlnj/viscomp/parser.cm
@@ -369,3 +375,4 @@ $/pickle-lib.cm
 $smlnj/init/init.cmi : cm          (* to gain access at CoreIntInf *)
 
 $smlnj/internal/smlnj-version.cm
+

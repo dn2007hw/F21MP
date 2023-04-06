@@ -732,9 +732,9 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
   				val isscript = checkSharpbang stream
 				in
 				  	if (isscript) = false  
-  					then	(print "!* Script file doesn't start with #!. \n")
-  					(* else	( silenceCompiler () ; useScriptFile (fname, stream) ) *) 
-					else	( useScriptFile (fname, stream) )
+  					then	( Say.say [ "!* Script file doesn't start with #!. \n" ] ) 
+					else	( silenceCompiler () ; useScriptFile (fname, stream) )
+					(* else	( useScriptFile (fname, stream) ) *)
 				end
 			(* DAYA change ends here *)
 

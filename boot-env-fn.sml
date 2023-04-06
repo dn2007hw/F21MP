@@ -74,7 +74,7 @@ functor BootEnvF (datatype envrequest = AUTOLOAD | BARE
 		      Backend.Interact.useStream,
 			  Backend.Interact.useScriptFile,
 			  Backend.Mutecompiler.silenceCompiler,
-		      errorwrap false useFile,
+			  errorwrap false useFile,
 		      errorwrap true,
 		      Backend.Interact.installCompManagers)
 	    end

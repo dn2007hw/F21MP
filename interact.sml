@@ -87,11 +87,38 @@ functor Interact(EvalLoop : EVALLOOP) : INTERACT =
 		  EvalLoop.uncaughtExnMessage exn;
 		  false))
 
+    (* Added by DAYA*)
+   (*
+    fun useScriptFile (fname, stream) = ( 
+      (EvalLoop.evalStream (fname, stream))
+          handle exn => (
+              case exn
+               of CompileError => raise CompileError
+                | ErrorMsg.Error => raise CompileError
+                | EvalLoop.ExnDuringExecution CompileError => raise CompileError
+                | EvalLoop.ExnDuringExecution exn' => raise exn'
+                | _ => raise EvalLoop.ExnDuringExecution exn
+                      )
+      )
+    *)
     end (* local *)
 
     fun useStream stream = EvalLoop.evalStream ("<instream>", stream)
-    fun useScriptFile (fname, stream) = EvalLoop.evalStream (fname, stream)  (* Addded by DAYA *)
-    fun tempdisplay () = (print "!* tempdisplay. \n")
+
+    (* Added by DAYA*)
+    
+    fun useScriptFile (fname, stream) = ( 
+      (EvalLoop.evalStream (fname, stream))
+        handle exn => ( 
+          Mutecompiler.printStashedCompilerOutput
+                             (case exn
+                              of ErrorMsg.Error => 70
+                              | _ => 2);
+          Mutecompiler.unsilenceCompiler ();
+          EvalLoop.uncaughtExnMessage exn
+          )  
+      )
+  
 
     fun evalStream (stream, baseEnv) = let
 	  val r = ref Environment.emptyEnv

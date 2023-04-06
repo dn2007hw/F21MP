@@ -275,6 +275,8 @@ MUTECOMPILER
   TopLevel/interact/mutecompiler.sig
 Mutecompiler
   TopLevel/interact/mutecompiler.sml
+NDaya
+  MiscUtil/library/ndaya.sml
 PARSER_CONTROL
   Parse/main/parsercontrol.sml
 ParserControl
