@@ -690,7 +690,7 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 	  end
       end
   in
-    fun init (bootdir, de, er, useStream, useScriptFile, silenceCompiler, useFile, errorwrap, icm) = let
+    fun init (bootdir, de, er, useStream, useScriptFile, useFile, errorwrap, icm) = let
 	fun procCmdLine () = let
 	    val autoload' = errorwrap (ignore o autoload mkStdSrcPath)
 	    val make' = errorwrap (ignore o makeStd)
@@ -733,8 +733,7 @@ functor LinkCM (structure HostBackend : BACKEND) = struct
 				in
 				  	if (isscript) = false  
   					then	( Say.say [ "!* Script file doesn't start with #!. \n" ] ) 
-					else	( silenceCompiler () ; useScriptFile (fname, stream) )
-					(* else	( useScriptFile (fname, stream) ) *)
+					else	( useScriptFile (fname, stream) )
 				end
 			(* DAYA change ends here *)
 

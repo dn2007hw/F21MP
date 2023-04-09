@@ -7,6 +7,8 @@
 signature MUTECOMPILER =
   sig
 
+    val printlineLimit : int ref
+    val compilerMuted : bool ref
     val isNewline : char -> bool
     val push : 'a list ref -> 'a -> unit
     val installPrintingLimitSettings : int list -> unit
@@ -19,6 +21,7 @@ signature MUTECOMPILER =
     val outputFlush : TextIO.outstream -> TextIO.vector -> unit
     val silenceCompiler : unit -> unit
     val unsilenceCompiler : unit -> unit
-    val printStashedCompilerOutput : int -> unit
+    val printStashedCompilerOutput : unit -> unit
+    val mcdummyfn : unit -> unit
 
   end  (* signature MUTECOMPILER *)

@@ -16,7 +16,6 @@ functor BootEnvF (datatype envrequest = AUTOLOAD | BARE
 		  val cminit : string * DynamicEnv.env * envrequest
 			       * (TextIO.instream -> unit)(* useStream *)
 				   * (string * TextIO.instream -> unit) (* useScriptFile *)
-				   * (unit -> unit) (* silenceCompiler *)
 			       * (string -> unit) (* useFile *)
 			       * ((string -> unit) -> (string -> unit))
 			                          (* errorwrap *)
@@ -73,7 +72,6 @@ functor BootEnvF (datatype envrequest = AUTOLOAD | BARE
 	      cminit (bootdir, de, er,
 		      Backend.Interact.useStream,
 			  Backend.Interact.useScriptFile,
-			  Backend.Mutecompiler.silenceCompiler,
 			  errorwrap false useFile,
 		      errorwrap true,
 		      Backend.Interact.installCompManagers)
