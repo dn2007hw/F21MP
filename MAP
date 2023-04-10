@@ -502,13 +502,6 @@ Library/   (was MiscUtil)
       defs: UnsignedWrappingArith : UNSIGNED_CONST_ARITH
     sources.cm
 
-  ndaya/
-  Implements ndaya functions.
-  (adapted from the SML Compiler Utilities)
-    ndaya..sig/sml
-      defs: NDaya : NDAYA
-    ndaya.cm
-
   pickle/
   Utility modules that are candidates for eventual
   promotion to general libraries (crc and pickling)

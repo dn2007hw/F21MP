@@ -151,9 +151,6 @@ Group
 	signature TARGET
 	structure Target
 
-	(* signature NDAYA
-	structure NDaya *)
-
 is
 
 TopLevel/environ/environ.sig
@@ -347,8 +344,6 @@ CodeGen/main/spill-table.sml
 
 (* Miscellaneous utilities. *)
 Library/const-arith/sources.cm
-
-Library/ndaya/ndaya.cm
 
 (* Libraries that are part of the visible compiler framework. *)
 $smlnj/viscomp/basics.cm
